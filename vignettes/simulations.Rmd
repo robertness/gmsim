@@ -1,0 +1,83 @@
+---
+title: "Simulation of Gaussian Graphical Models"
+author: "Robert Ness"
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, message=FALSE}
+library(gmsim)
+```
+
+Use *simGaussianNet* to simulate a Gaussian Bayesian network with range of eigen values between 1.73 and 2.55, and 5 variables. 
+
+```{r}
+set.seed(1)
+rng <- c(1.73, 2.55) #Range of eigen values
+num.vars <- 8 #Number of variables
+net <- simGaussianNet(num.vars, rng) # Melancon refers 
+```
+
+```{r, gauss_net, message=FALSE, eval=FALSE}
+graphviz.plot(net)
+```
+
+![gauss_net](http://i.imgur.com/6P4xabJ.png)
+
+
+This is a Gaussian Bayesian network, where the joint multivariate normal distribution is factored into the product of a set of conditional Gaussian distributeions.  The function *getPrecisionBasis* will find the basis of the precision matrix corresponding to the underlying joint distribution.  *simSparsePrecision* will simulate a precision matrix based on that basis.  This enables one to simulate a precision matrix from a directed or undirected network structure.  The eigen values will be in the range provided to *simSparsePrecision*.
+
+```{r}
+net %>% 
+  bn.net %>% # Convert to bn class
+  getPrecisionBasis %>% # Get the basis of the precision network
+  simSparsePrecision(rng)# Simulate a precision network based on this basis
+```
+
+Similarly, you can simulate a covariance matrix with the given range of eigen values.
+
+```{r}
+cov_mat <- net %>% 
+  bn.net %>% 
+  simNetCovariance(rng) 
+cov_mat
+```
+
+Further, given a covariance matrix you can simulate a DAG structure.  In this case you get the same DAG as the original that was used to simulate the covariance matrix.  This won't neccessarily always be the case, but you will get a DAG that is in the equivilence class of the original network.
+
+```{r gauss_net2, eval=FALSE}
+cov_mat %>%
+  simDAGFromCovMat %>%
+  graphviz.plot
+```
+
+![gauss_net2](http://i.imgur.com/6P4xabJ.png)
+
+There are limitations however.  *simDAGFromCovMat* relies on *bnlearn*'s function [cextend](http://www.bnlearn.com/documentation/man/cpdag.html) to generate the DAG from the equivilence class of a joint multivariate Gaussian distribution.  If the distribution is too complex, the algo will fail.  
+
+For example the following network...
+
+```{r}
+net2 <- randomNet(num.vars = 40, method = "melancon")
+```
+
+```{r hair_ball, eval=FALSE}
+graphviz.plot(net2)
+```
+
+![hair_ball](http://i.imgur.com/dyS78op.png)
+
+...is quite the hairball.  *simNetCovariance* will simulate a covariance matrix (showing first 10 rows and 5 columns):
+
+```{r}
+cov_mat2 <- simNetCovariance(net2, c(1.5, 5)) 
+cov_mat2[1:10, 1:5]
+```
+
+But you can't simulate a DAG from this covariance matrix, as it is too large.
+
+```{r}
+simDAGFromCovMat(cov_mat2)
+```

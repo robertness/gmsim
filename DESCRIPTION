@@ -1,0 +1,12 @@
+Package: gmsim
+Type: Package
+Title: Simulations of Graphical Models.
+Version: 1.0
+Date: 2015-03-27
+Author: Robert Ness
+Maintainer: Robert Ness <robertness@gmail.com>
+Description: gmsim simulates graphical models, particularly Bayesian networks.
+License: MIT + file LICENSE
+Depends: magrittr, bnlearn, clusterGeneration
+Suggests: knitr, ROCR, testthat
+VignetteBuilder: knitr
