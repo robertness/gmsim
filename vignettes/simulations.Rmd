@@ -1,11 +1,12 @@
 ---
-title: "Simulation of Gaussian Graphical Models"
-author: "Robert Ness"
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
+
+# Simulation of Gaussian Graphical Models
+by Robert Ness
 
 ```{r, message=FALSE}
 library(gmsim)
